@@ -1,0 +1,19 @@
+{
+  "name": "dynosaur",
+  "version": "0.0.1",
+  "description": "Promise based Dynamo DB library that makes sense ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kartiklad/dynosaur.git"
+  },
+  "author": "Kartik Lad",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kartiklad/dynosaur/issues"
+  },
+  "homepage": "https://github.com/kartiklad/dynosaur#readme"
+}
