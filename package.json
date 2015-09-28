@@ -2,18 +2,46 @@
   "name": "dynosaur",
   "version": "0.0.1",
   "description": "Promise based Dynamo DB library that makes sense ",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "gulp",
+    "build": "gulp build",
+    "coverage": "gulp coverage",
+    "prepublish": "gulp build"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kartiklad/dynosaur.git"
+    "url": "https://github.com/kartiklad/dynosaur.git"
   },
   "author": "Kartik Lad",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/kartiklad/dynosaur/issues"
   },
-  "homepage": "https://github.com/kartiklad/dynosaur#readme"
+  "homepage": "https://github.com/kartiklad/dynosaur#readme",
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "babel-core": "^5.8.25",
+    "babel-eslint": "^4.1.3",
+    "chai": "^3.3.0",
+    "del": "^2.0.2",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-coveralls": "^0.1.4",
+    "gulp-eslint": "^1.0.0",
+    "gulp-istanbul": "^0.10.0",
+    "gulp-load-plugins": "^0.10.0",
+    "gulp-mocha": "^2.1.3",
+    "gulp-plumber": "^1.0.1",
+    "gulp-sourcemaps": "^1.5.2",
+    "isparta": "^3.0.4",
+    "sinon": "^1.17.0",
+    "sinon-chai": "^2.8.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.2.4",
+    "bluebird": "^2.10.1",
+    "lodash": "^3.10.1"
+  }
 }
