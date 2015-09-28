@@ -5,5 +5,4 @@ node_js:
   - "0.10"
 sc
 after_script:
-  - npm run coverage
   - gulp coveralls
