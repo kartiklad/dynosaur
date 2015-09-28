@@ -4,7 +4,7 @@
   "description": "Promise based Dynamo DB library that makes sense ",
   "main": "dist/index.js",
   "scripts": {
-    "test": "gulp",
+    "test": "gulp test",
     "build": "gulp build",
     "coverage": "gulp coverage",
     "prepublish": "gulp build"
