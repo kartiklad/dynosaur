@@ -3,5 +3,7 @@ node_js:
   - "0.12"
   - "0.11"
   - "0.10"
+sc
 after_script:
+  - npm run coverage
   - gulp coveralls
