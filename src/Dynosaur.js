@@ -1,5 +1,6 @@
 import Promise from 'bluebird';
 import AWS from 'aws-sdk';
+import _ from 'lodash';
 import utils from './utils';
 
 class Dynosaur {
@@ -8,9 +9,9 @@ class Dynosaur {
      * @constructor
      */
     constructor(credentials) {
-        if(!credentials) {
+        if (!credentials) {
             throw new Error('Dynosaur: database connection credentials required');
-        }else if(!credentials.region) {
+        }else if (!credentials.region) {
             throw new Error('Dynosaur: region key not set in credentials');
         }
 
@@ -30,11 +31,11 @@ class Dynosaur {
      * @returns {promise} Promise
      */
     describe(tableName) {
-        if(!tableName) {
+        if (!tableName) {
             throw new Error('DynoQ: Table name is required');
         }
 
-        let params = {
+        const params = {
             TableName: tableName
         };
 
@@ -49,15 +50,144 @@ class Dynosaur {
      * @returns {promise} Promise
      */
     createTable(tableName, hashKey, rangeKey, awsParams) {
-        if(!tableName) {
+        if (!tableName) {
             throw new Error('Dynosaur: Table name is required');
-        }else if(!hashKey) {
+        }else if (!hashKey) {
             throw new Error('Dynosaur: Hash key is required');
         }
 
-        let params = this.utils.createTable(tableName, hashKey, rangeKey, awsParams);
+        const params = this.utils.createTable(tableName, hashKey, rangeKey, awsParams);
 
         return this.db.createTableAsync(params);
+    }
+
+    /**
+     * @param  {string} tableName - DynamoDB table name
+     * @returns {promise} Promise
+     */
+    isTableActive(tableName) {
+        if (!tableName) {
+            throw new Error('Dynosaur: Table name is required');
+        }
+
+        const params = {
+            TableName: tableName
+        };
+
+        return this.db.waitForAsync('tableExists', params)
+        .then((data) => {
+            let status;
+
+            if (data.Table.TableStatus === 'ACTIVE') {
+                status = true;
+            } else {
+                status = false;
+            }
+
+            return status;
+        });
+    }
+
+    /**
+     * @param  {string} tableName - DynamoDB table name
+     * @return {promise} Promise
+     */
+    deleteTable(tableName) {
+        if (!tableName) {
+            throw new Error('Dynosaur: Table name is required');
+        }
+
+        const params = {
+            TableName: tableName
+        };
+
+        return this.db.deleteTableAsync(params);
+    }
+
+    /**
+     * @param  {string} tableName - DynamoDB table name
+     * @param  {object} keys - all columns including hash and range keys
+     * @param  {object} condition - (optional) { unique: ['hashkey', 'rangeKey'] }
+     * @param  {object} awsParams - (optional) Refer to AWS docs for these configurations
+     * @returns {promise} Promise
+     */
+    insert(tableName, keys, condition, awsParams) {
+        if (!tableName) {
+            throw new Error('Dynosaur: Table name is required');
+        }
+
+        let params = {
+            TableName: tableName,
+            Item: this.utils.formatToDynamoItems(keys)
+        };
+
+        const conditionExpression = this.utils.conditionBuilder(condition);
+        if (conditionExpression) {
+            params = _.assign(params, conditionExpression);
+        }
+
+        if (awsParams) {
+            params = _.assign(params, awsParams);
+        }
+
+        return this.db.putItemAsync(params);
+    }
+
+    /**
+     * @param  {string} tableName - DynamoDB table name
+     * @param  {object} hashRangeKeys - Hash key and optionally range key{ hashKey: value, rangeKey: value}
+     * @param  {object} updateKeys - Key value pairs to add/update {key:value,...}
+     * @param  {object} awsParams - (optional) Refer to AWS docs for these configurations
+     * @returns {promise} Promise
+     */
+    update(tableName, hashRangeKeys, updateKeys, awsParams) {
+        if (!tableName) {
+            throw new Error('Dynosaur: Table name is required');
+        }
+        if (!hashRangeKeys) {
+            throw new Error('Dynosaur: Primary keys are required');
+        }
+
+        let params = {
+            TableName: tableName,
+            Key: this.utils.formatToDynamoItems(hashRangeKeys)
+        };
+
+        if (updateKeys) {
+            params = _.assign(params, this.utils.updateItem(updateKeys));
+        }
+
+        if (awsParams) {
+            params = _.assign(params, awsParams);
+        }
+
+        return this.db.updateItemAsync(params);
+    }
+
+    /**
+     * @param  {string} tableName - DynamoDB table name
+     * @param  {object} hashRangeKeys - Hash key and optionally range key{ hashKey: value, rangeKey: value}
+     * @param  {object} awsParams - (optional) Refer to AWS docs for these configurations
+     * @return {promise} Promise
+     */
+    delete(tableName, hashRangeKeys, awsParams) {
+        if (!tableName) {
+            throw new Error('Dynosaur: Table name is required');
+        }
+        if (!hashRangeKeys) {
+            throw new Error('Dynosaur: Primary keys are required');
+        }
+
+        let params = {
+            TableName: tableName,
+            Key: this.utils.formatToDynamoItems(hashRangeKeys)
+        };
+
+        if (awsParams) {
+            params = _.assign(params, awsParams);
+        }
+
+        return this.db.deleteItemAsync(params);
     }
 }
 
