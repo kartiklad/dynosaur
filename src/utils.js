@@ -1,4 +1,5 @@
 import _ from 'lodash';
+
 /**
  * @param  {array} keys - Hash and Range keys
  * @returns {object} object - formatted keys object
@@ -55,7 +56,7 @@ function createTable(tableName, hashKey, rangeKey, params = {}) {
 }
 
 /**
- * @param  {string} Item - Table Column {key: value}
+ * @param  {object} Item - Table Column {key: value}
  * @returns {object} DynamoDB item - {key: {type: value}}
  */
 function formatToDynamoItem(item) {
@@ -104,6 +105,52 @@ function formatToDynamoItems(items) {
 }
 
 /**
+ * @param  {object} Item - Table Column {key: value}
+ * @returns {object} DynamoDB item - {key: {type: value}}
+ */
+function formatFromDynamoItem(item) {
+    let obj = {};
+
+    if (_.isArray(item)) {
+        _.forEach(item, (value, key) => {
+            obj[key] = formatFromDynamoItem(value);
+        });
+    }
+    if (_.isObject(item)) {
+        obj = _.transform(item, (res, val, key) => {
+            if (val.S) {
+                res[key] = val.S;
+                return res;
+            } else if (val.SS) {
+                res[key] = val.SS;
+                return res;
+            } else if (val.N) {
+                res[key] = parseFloat(val.N);
+                return res;
+            } else if (val.NS) {
+                res[key] = _.map(val.NS, parseFloat);
+                return res;
+            }
+        });
+    }
+
+    return obj;
+}
+
+/**
+ * @param  {object} DynamoDB items - Object of DynamoDB items
+ * @return {object} Items - Object of table columns
+ */
+function formatFromDynamoItems(items) {
+    _.forIn(items, (value, key) => {
+        items[key] = formatFromDynamoItem(value);
+    });
+
+    return items;
+}
+
+
+/**
  * @param  {object} condition - { unique: ['hashkey', 'rangeKey'] }
  * @return {object} conditionExpression - DynamoDB condition expression
  */
@@ -129,6 +176,10 @@ function conditionBuilder(condition = {}) {
     return conditionExpression;
 }
 
+/**
+ * @param  {object} keys - object of columns to add/update {key:value,...}
+ * @return {object} DynamoDB formated update expression
+ */
 function updateItem(keys) {
     const params = {
         ExpressionAttributeNames: {},
@@ -148,11 +199,33 @@ function updateItem(keys) {
     return params;
 }
 
+/**
+ * @param  {keys} keys - {key:value,...}
+ * @return {object} DynamoDB formated KeyConditions expression
+ */
+function getItem(keys) {
+    const params = {
+        KeyConditions: {}
+    };
+
+    _.forIn(keys, (value, key) => {
+        params.KeyConditions[key] = {
+            ComparisonOperator: 'EQ',
+            AttributeValueList: [formatToDynamoItem(value)]
+        };
+    });
+
+    return params;
+}
+
 export default {
     createTable,
     formatSchemaParams,
-    formatToDynamoItems,
     formatToDynamoItem,
+    formatToDynamoItems,
+    formatFromDynamoItem,
+    formatFromDynamoItems,
     conditionBuilder,
-    updateItem
+    updateItem,
+    getItem
 };

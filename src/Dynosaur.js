@@ -189,6 +189,70 @@ class Dynosaur {
 
         return this.db.deleteItemAsync(params);
     }
+
+    /**
+     * @param  {string} tableName - DynamoDB table name
+     * @param  {object} hashRangeKeys - Hash key and optionally range key{ hashKey: value, rangeKey: value}
+     * @param  {object} awsParams - (optional) { IndexName: 'index_name',... } Refer to AWS docs for these configurations
+     * @return {promise} Promise
+     */
+    get(tableName, hashRangeKeys, awsParams) {
+        if (!tableName) {
+            throw new Error('Dynosaur: Table name is required');
+        }
+        if (!hashRangeKeys) {
+            throw new Error('Dynosaur: Primary keys are required');
+        }
+
+        let params = {
+            TableName: tableName
+        };
+
+        params = _.assign(params, this.utils.getItem(hashRangeKeys));
+
+        if (awsParams) {
+            params = _.assign(params, awsParams);
+        }
+
+        return this.db.queryAsync(params).then((data) => {
+            let records = null;
+
+            if (data.Items) {
+                records = this.utils.formatFromDynamoItems(data.Items);
+            }
+
+            return records[0];
+        });
+    }
+
+    /**
+     * @param  {string} tableName - DynamoDB table name
+     * @param  {object} awsParams - Refer to AWS docs for these configurations
+     * @return {promise} Promise
+     */
+    scan(tableName, awsParams) {
+        if (!tableName) {
+            throw new Error('Dynosaur: Table name is required');
+        }
+
+        let params = {
+            TableName: tableName
+        };
+
+        if (awsParams) {
+            params = _.assign(params, awsParams);
+        }
+
+        return this.db.scanAsync(params).then((data) => {
+            let records = null;
+
+            if (data.Items) {
+                records = this.utils.formatFromDynamoItems(data.Items);
+            }
+
+            return records;
+        });
+    }
 }
 
 export default Dynosaur;

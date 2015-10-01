@@ -1,3 +1,4 @@
+import Promise from 'bluebird';
 import {Dynosaur} from '../src';
 
 describe('Dynosaur', function() {
@@ -281,6 +282,124 @@ describe('Dynosaur', function() {
             });
 
             expect(mockDelete).to.be.calledWith(mockParams);
+        });
+    });
+
+    describe('get', function() {
+        const dyno = new Dynosaur(mockCreds);
+
+        it('should throw and error if table name is not passed', function() {
+            function fn() {
+                return dyno.get();
+            }
+
+            expect(fn).to.throw(Error);
+        });
+
+        it('should throw and error if primary keys are not passed', function() {
+            function fn() {
+                return dyno.get('test');
+            }
+
+            expect(fn).to.throw(Error);
+        });
+
+        it('should get single formatted item', function(done) {
+            const mockItemsFromDB = {
+                Items: [
+                    {
+                        hash: {
+                            'S': 'value'
+                        },
+                        range: {
+                            'S': 'value1'
+                        },
+                        otherkey: {
+                            'S': 'keyvalue'
+                        }
+                    }
+                ],
+                Count: 1,
+                ScannedCount: 1
+            };
+
+            const mockQuery = sinon.stub();
+            mockQuery.returns(Promise.resolve(mockItemsFromDB));
+
+            dyno.db.queryAsync = mockQuery;
+
+            dyno.get('test', {
+                hash: 'value',
+                range: 'value1'
+            }).then((data) => {
+                expect(data).to.eql({
+                    hash: 'value',
+                    range: 'value1',
+                    otherkey: 'keyvalue'
+                });
+                done();
+            });
+        });
+    });
+
+    describe('scan', function() {
+        const dyno = new Dynosaur(mockCreds);
+
+        it('should throw and error if table name is not passed', function() {
+            function fn() {
+                return dyno.get();
+            }
+
+            expect(fn).to.throw(Error);
+        });
+
+        it('should throw and error if primary keys are not passed', function() {
+            function fn() {
+                return dyno.get('test');
+            }
+
+            expect(fn).to.throw(Error);
+        });
+
+        it('should get multiple formatted items', function(done) {
+            const mockItemsFromDB = {
+                Items: [
+                    {
+                        hash: {
+                            'S': 'value'
+                        },
+                        otherkey: {
+                            'S': 'keyvalue'
+                        }
+                    }, {
+                        hash: {
+                            'S': 'value1'
+                        },
+                        otherkey: {
+                            'S': 'keyvalue1'
+                        }
+                    }
+
+                ],
+                Count: 2,
+                ScannedCount: 2
+            };
+
+            const mockScan = sinon.stub();
+            mockScan.returns(Promise.resolve(mockItemsFromDB));
+
+            dyno.db.scanAsync = mockScan;
+
+            dyno.scan('test').then((data) => {
+                expect(data).to.eql([{
+                    hash: 'value',
+                    otherkey: 'keyvalue'
+                }, {
+                    hash: 'value1',
+                    otherkey: 'keyvalue1'
+                }]);
+                done();
+            });
         });
     });
 });

@@ -1,6 +1,6 @@
 {
   "name": "dynosaur",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Promise based Dynamo DB library that makes sense ",
   "main": "dist/index.js",
   "scripts": {
