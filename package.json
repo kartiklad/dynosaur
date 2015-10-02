@@ -6,7 +6,7 @@
   "files": [
     "Readme.md",
     "dist/"
-  ]
+  ],
   "scripts": {
     "test": "gulp coverage",
     "build": "gulp build",
