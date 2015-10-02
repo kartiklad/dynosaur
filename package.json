@@ -1,8 +1,12 @@
 {
   "name": "dynosaur",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Promise based Dynamo DB library that makes sense ",
   "main": "dist/index.js",
+  "files": [
+    "Readme.md",
+    "dist/"
+  ]
   "scripts": {
     "test": "gulp coverage",
     "build": "gulp build",
