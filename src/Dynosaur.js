@@ -5,6 +5,7 @@ import utils from './utils';
 
 class Dynosaur {
     /**
+     * Initializes AWS DynamoDB sdk
      * @param  {object} credentials - Region must be specified
      * @constructor
      */
@@ -27,6 +28,7 @@ class Dynosaur {
     }
 
     /**
+     * Returns information about the table, including the current status of the table, when it was created, the primary key schema, and any indexes on the table.
      * @param {string} tableName - DynamoDB table name
      * @returns {promise} Promise
      */
@@ -43,6 +45,7 @@ class Dynosaur {
     }
 
     /**
+     * Adds a new Table to DynamoDB
      * @param  {string} tableName - DynamoDB table name
      * @param  {object} hashKey - { name: 'string', type: 'string S | N | B' }
      * @param  {object} rangeKey - Optional { name: 'string', type: 'string S | N | B' }
@@ -62,6 +65,7 @@ class Dynosaur {
     }
 
     /**
+     * Waits for a given DynamoDB table to Activate.
      * @param  {string} tableName - DynamoDB table name
      * @returns {promise} Promise
      */
@@ -89,6 +93,7 @@ class Dynosaur {
     }
 
     /**
+     * Deletes a table and all of its items.
      * @param  {string} tableName - DynamoDB table name
      * @return {promise} Promise
      */
@@ -105,6 +110,7 @@ class Dynosaur {
     }
 
     /**
+     * Creates a new item, or replaces an old item with a new item. Does not replace old item if condition is passed
      * @param  {string} tableName - DynamoDB table name
      * @param  {object} keys - all columns including hash and range keys
      * @param  {object} condition - (optional) { unique: ['hashkey', 'rangeKey'] }
@@ -134,6 +140,7 @@ class Dynosaur {
     }
 
     /**
+     * Edits an existing item's attributes, or adds a new item to the table if it does not already exist.
      * @param  {string} tableName - DynamoDB table name
      * @param  {object} hashRangeKeys - Hash key and optionally range key{ hashKey: value, rangeKey: value}
      * @param  {object} updateKeys - Key value pairs to add/update {key:value,...}
@@ -165,6 +172,7 @@ class Dynosaur {
     }
 
     /**
+     * Deletes a single item in a table by primary key.
      * @param  {string} tableName - DynamoDB table name
      * @param  {object} hashRangeKeys - Hash key and optionally range key{ hashKey: value, rangeKey: value}
      * @param  {object} awsParams - (optional) Refer to AWS docs for these configurations
@@ -191,6 +199,7 @@ class Dynosaur {
     }
 
     /**
+     * Returns a set of attributes for the item with the given primary key.
      * @param  {string} tableName - DynamoDB table name
      * @param  {object} hashRangeKeys - Hash key and optionally range key{ hashKey: value, rangeKey: value}
      * @param  {object} awsParams - (optional) { IndexName: 'index_name',... } Refer to AWS docs for these configurations
@@ -226,6 +235,7 @@ class Dynosaur {
     }
 
     /**
+     * Returns one or more items and item attributes by accessing every item in a table or a secondary index.
      * @param  {string} tableName - DynamoDB table name
      * @param  {object} awsParams - Refer to AWS docs for these configurations
      * @return {promise} Promise
